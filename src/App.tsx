@@ -5,8 +5,22 @@ import { Button } from "./components/ui/button"
 import { Control, Input } from "./components/ui/input"
 import { Table, TableBody, TableCell } from "./components/ui/table"
 import { TableHead, TableHeader, TableRow } from "./components/ui/table"
+import { useQuery } from "@tanstack/react-query"
+
+
 
 export const App = () => {
+  const data = useQuery({
+    queryKey: ['get-tags'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3333/tags?_page=1&_per_page=10')
+
+      const data = await response.json()
+console.log(data)
+      return data
+
+    }
+  })
   return (
     <div className="py-10 space-y-8">
       <div>
@@ -41,29 +55,29 @@ export const App = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-           {Array.from({length: 10 }).map((value, index) => {
-            return(
-              <TableRow key={index}>
-              <TableCell> </TableCell>
-              <TableCell>
-                <div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium">React</span>
-                    <span className="font-xs text-zinc-500">a8a2af47-1ff7-4cb0-846e-1c7d38e538b9</span>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="text-zinc-300"> 13 video(s)</TableCell>
-              <TableCell className="text-right">
-                <Button size="icon">
-                  <MoreHorizontal className="size-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-            )
-           })}
+            {Array.from({ length: 10 }).map((value, index) => {
+              return (
+                <TableRow key={index}>
+                  <TableCell> </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium">React</span>
+                        <span className="font-xs text-zinc-500">a8a2af47-1ff7-4cb0-846e-1c7d38e538b9</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-zinc-300"> 13 video(s)</TableCell>
+                  <TableCell className="text-right">
+                    <Button size="icon">
+                      <MoreHorizontal className="size-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
-        </Table>  
+        </Table>
       </main>
     </div>
   )
