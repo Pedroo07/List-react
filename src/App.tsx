@@ -8,6 +8,7 @@ import { TableHead, TableHeader, TableRow } from "./components/ui/table"
 import { useQuery } from "@tanstack/react-query"
 import { Pagination } from "./components/pagination"
 import { useSearchParams } from "react-router-dom"
+import { useState } from "react"
 
 export interface TagResponse {
   first: number
@@ -27,6 +28,8 @@ export interface Tag {
 
 export const App = () => {
   const [searchParams] = useSearchParams()
+  const urlFilter = searchParams.get('filter') ?? ''
+  const [filter,setFilter] = useState(urlFilter)
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1
   const {data: TagsResponse, isLoading} = useQuery<TagResponse>({
     queryKey: ['get-tags', page],
@@ -58,7 +61,9 @@ console.log(data)
         <div className="flex items-center justify-between">
           <Input variant="filter">
             <Search className="size-3" />
-            <Control placeholder="Search tags..." />
+            <Control placeholder="Search tags..." onChange={(e) => {
+              setFilter(e.target.value)
+            }}/>
           </Input>
           <Button>
             <FileDown className="size-3" />
