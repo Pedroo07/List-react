@@ -6,19 +6,39 @@ import { Control, Input } from "./components/ui/input"
 import { Table, TableBody, TableCell } from "./components/ui/table"
 import { TableHead, TableHeader, TableRow } from "./components/ui/table"
 import { useQuery } from "@tanstack/react-query"
+import { Pagination } from "./components/pagination"
+import { useSearchParams } from "react-router-dom"
 
+export interface TagResponse {
+  first: number
+  prev: number | null
+  next: number
+  last: number
+  pages: number
+  items: number
+  data: Tag[]
+}
 
+export interface Tag {
+  title: string
+  amountOfVideos: number
+  id: string
+}
 
 export const App = () => {
-  const data = useQuery({
-    queryKey: ['get-tags'],
+  const [searchParams] = useSearchParams()
+  const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1
+  const {data: TagsResponse, isLoading} = useQuery<TagResponse>({
+    queryKey: ['get-tags', page],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3333/tags?_page=1&_per_page=10')
+      const response = await fetch(`http://localhost:3333/tags?_page=${page}&_per_page=10`)
 
       const data = await response.json()
 console.log(data)
       return data
-
+      if (isLoading) {
+        return null
+      }
     }
   })
   return (
@@ -55,19 +75,19 @@ console.log(data)
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.from({ length: 10 }).map((value, index) => {
+            {TagsResponse?.data.map((tag) => {
               return (
-                <TableRow key={index}>
+                <TableRow key={tag.id}>
                   <TableCell> </TableCell>
                   <TableCell>
                     <div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-medium">React</span>
-                        <span className="font-xs text-zinc-500">a8a2af47-1ff7-4cb0-846e-1c7d38e538b9</span>
+                        <span className="font-medium">{tag.title}</span>
+                        <span className="font-xs text-zinc-500">{tag.id}</span>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-zinc-300"> 13 video(s)</TableCell>
+                  <TableCell className="text-zinc-300"> {tag.amountOfVideos} video(s)</TableCell>
                   <TableCell className="text-right">
                     <Button size="icon">
                       <MoreHorizontal className="size-4" />
@@ -78,6 +98,7 @@ console.log(data)
             })}
           </TableBody>
         </Table>
+        {TagsResponse && <Pagination pages={TagsResponse.pages} items={TagsResponse.items} page={page}/>}
       </main>
     </div>
   )
