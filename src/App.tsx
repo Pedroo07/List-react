@@ -1,11 +1,11 @@
-import { Plus, Search, FileDown, MoreHorizontal } from "lucide-react"
+import { Plus, Search, FileDown, MoreHorizontal, Filter } from "lucide-react"
 import { Header } from "./components/header"
 import { Tabs } from "./components/tabs"
 import { Button } from "./components/ui/button"
 import { Control, Input } from "./components/ui/input"
 import { Table, TableBody, TableCell } from "./components/ui/table"
 import { TableHead, TableHeader, TableRow } from "./components/ui/table"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { Pagination } from "./components/pagination"
 import { useSearchParams } from "react-router-dom"
 import { useState } from "react"
@@ -28,24 +28,32 @@ export interface Tag {
 }
 
 export const App = () => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const urlFilter = searchParams.get('filter') ?? ''
-  const [filter,setFilter] = useState(urlFilter)
-  const DebouncedFilter = useDebounceValue(filter , 1000)
+  const [filter, setFilter] = useState(urlFilter)
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1
-  const {data: TagsResponse, isLoading} = useQuery<TagResponse>({
-    queryKey: ['get-tags',DebouncedFilter, page],
+  const { data: TagsResponse, isLoading } = useQuery<TagResponse>({
+    queryKey: ['get-tags', urlFilter, page],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:3333/tags?_page=${page}&_per_page=10&title=${DebouncedFilter}`)
-
+      const response = await fetch(`http://localhost:3333/tags?_page=${page}&_per_page=10&title=${urlFilter}`)
       const data = await response.json()
-console.log(data)
+      console.log(data)
       return data
       if (isLoading) {
         return null
       }
-    }
+    },
+    placeholderData: keepPreviousData
   })
+  const filteredItens = () => {
+    setSearchParams(params => {
+      params.set('page', '1')
+      params.set('filter', filter)
+
+      return params
+    })
+
+  }
   return (
     <div className="py-10 space-y-8">
       <div>
@@ -61,12 +69,16 @@ console.log(data)
           </Button>
         </div>
         <div className="flex items-center justify-between">
-          <Input variant="filter">
-            <Search className="size-3" />
-            <Control placeholder="Search tags..." onChange={(e) => {
-              setFilter(e.target.value)
-            }}/>
-          </Input>
+          <div className="flex items-center gap-3">
+            <Input variant="filter">
+              <Search className="size-3" />
+              <Control placeholder="Search tags..." onChange={e => setFilter(e.target.value)} value={filter}/>
+            </Input>
+            <Button onClick={filteredItens}>
+              <Filter className="size-3" />
+              Filter
+            </Button>
+          </div>
           <Button>
             <FileDown className="size-3" />
             Export
@@ -105,7 +117,7 @@ console.log(data)
             })}
           </TableBody>
         </Table>
-        {TagsResponse && <Pagination pages={TagsResponse.pages} items={TagsResponse.items} page={page}/>}
+        {TagsResponse && <Pagination pages={TagsResponse.pages} items={TagsResponse.items} page={page} />}
       </main>
     </div>
   )
