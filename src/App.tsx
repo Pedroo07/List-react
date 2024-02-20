@@ -5,7 +5,6 @@ import { Button } from "./components/ui/button"
 import { Control, Input } from "./components/ui/input"
 import { Table, TableBody, TableCell } from "./components/ui/table"
 import { TableHead, TableHeader, TableRow } from "./components/ui/table"
-import { Pagination } from "./components/pagination"
 
 export const App = () => {
   return (
