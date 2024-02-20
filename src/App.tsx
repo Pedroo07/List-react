@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Pagination } from "./components/pagination"
 import { useSearchParams } from "react-router-dom"
 import { useState } from "react"
+import useDebounceValue from "./hooks/use-debounce-value"
 
 export interface TagResponse {
   first: number
@@ -30,11 +31,12 @@ export const App = () => {
   const [searchParams] = useSearchParams()
   const urlFilter = searchParams.get('filter') ?? ''
   const [filter,setFilter] = useState(urlFilter)
+  const DebouncedFilter = useDebounceValue(filter , 1000)
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1
   const {data: TagsResponse, isLoading} = useQuery<TagResponse>({
-    queryKey: ['get-tags', page],
+    queryKey: ['get-tags',DebouncedFilter, page],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:3333/tags?_page=${page}&_per_page=10`)
+      const response = await fetch(`http://localhost:3333/tags?_page=${page}&_per_page=10&title=${DebouncedFilter}`)
 
       const data = await response.json()
 console.log(data)
