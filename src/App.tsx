@@ -9,7 +9,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { Pagination } from "./components/pagination"
 import { useSearchParams } from "react-router-dom"
 import { useState } from "react"
-import useDebounceValue from "./hooks/use-debounce-value"
+import { KeyboardEvent } from "react"
 
 export interface TagResponse {
   first: number
@@ -54,6 +54,12 @@ export const App = () => {
     })
 
   }
+  const handleKeyEnter = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      filteredItens()
+    }
+
+  }
   return (
     <div className="py-10 space-y-8">
       <div>
@@ -70,9 +76,9 @@ export const App = () => {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Input variant="filter">
+            <Input variant="filter" >
               <Search className="size-3" />
-              <Control placeholder="Search tags..." onChange={e => setFilter(e.target.value)} value={filter}/>
+              <Control placeholder="Search tags..." onKeyDown={handleKeyEnter} onChange={e => setFilter(e.target.value)} value={filter}/>
             </Input>
             <Button onClick={filteredItens}>
               <Filter className="size-3" />
