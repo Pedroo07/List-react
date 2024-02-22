@@ -1,6 +1,6 @@
 import { Button } from './ui/button'
-import { Check, X } from 'lucide-react'
-import { z } from 'zod'
+import { Check, Loader2, X } from 'lucide-react'
+import { promise, z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Dialog from '@radix-ui/react-dialog'
@@ -19,7 +19,7 @@ function getSlugFromString(input: string): string {
     });
 }
  export const CreateTagForm = () => {
-    const { register, handleSubmit, watch } = useForm<CreateTagSchema>({
+    const { register, handleSubmit, watch, formState } = useForm<CreateTagSchema>({
         resolver: zodResolver(createTagSchema)
     })
 
@@ -27,6 +27,8 @@ function getSlugFromString(input: string): string {
 
     const createTag = async ({title}: CreateTagSchema) => {
         console.log({title , slug})
+
+        await new Promise(resolve =>  setTimeout(resolve, 2000))
 
         await fetch('http://localhost:3333/tags', {
             method: 'POST',
@@ -54,8 +56,9 @@ function getSlugFromString(input: string): string {
                         Cancel
                     </Button>
                 </Dialog.Close>
-                <Button type='submit' className='bg-teal-400 text-teal-950'>
-                    <Check className='size-3' />
+                <Button type='submit' disabled={formState.isSubmitting} className='bg-teal-400 text-teal-950'>
+                    {formState.isSubmitting ? <Loader2 className='size-3 animate-spin'/>  : <Check className='size-3' />}
+                    
                     Save
                 </Button>
             </div>
