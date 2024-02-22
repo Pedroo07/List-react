@@ -1,13 +1,13 @@
 import { Button } from './ui/button'
 import { Check, Loader2, X } from 'lucide-react'
-import { promise, z } from 'zod'
+import {  z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Dialog from '@radix-ui/react-dialog'
 import slugify from 'slugify'
 
 const createTagSchema = z.object({
-    title: z.string().min(3, { message: 'Minimium 3 caractres' })
+    title: z.string().min(3, { message: 'Minimium 3 caracteres' })
 })
 
 type CreateTagSchema = z.infer<typeof createTagSchema>
@@ -44,10 +44,14 @@ function getSlugFromString(input: string): string {
             <div className='space-y-2'>
                 <label className='text-sm font-medium block' htmlFor='title'>Tag name</label>
                 <input {...register('title')} type="text" id='title' className='border-zinc-800 rounded-lg px-3 py-2 block bg-zinc-800/50 w-full' />
+                {formState.errors?.title && (
+                    <p className='text-sm text-red-400 px-2'>{formState.errors.title.message}</p>
+                )}
             </div>
             <div className='space-y-2'>
                 <label className='text-sm font-medium block' htmlFor='slug'>Slug</label>
                 <input type="text" readOnly id='slug' value={slug} className='border-zinc-800 rounded-lg px-3 py-2 block bg-zinc-800/50 w-full' />
+                
             </div>
             <div className='flex items-center justify-end gap-2'>
                 <Dialog.Close asChild>
